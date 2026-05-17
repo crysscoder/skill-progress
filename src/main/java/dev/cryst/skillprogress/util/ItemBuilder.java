@@ -1,4 +1,4 @@
-package dev.cryst.skillprogress.Util;
+package dev.cryst.skillprogress.util;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

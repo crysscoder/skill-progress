@@ -9,7 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import dev.cryst.skillprogress.PluginContext;
-import dev.cryst.skillprogress.Util.ItemBuilder;
+import dev.cryst.skillprogress.util.ItemBuilder;
 import dev.cryst.skillprogress.dto.User;
 
 import java.util.ArrayList;
