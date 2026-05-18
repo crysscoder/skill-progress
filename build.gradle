@@ -5,8 +5,8 @@ plugins {
 
 }
 
-group = 'dev.cryst'
-version = '1.0.0'
+group = 'io.github.crysscoder'
+version = '1.0.1'
 
 repositories {
     mavenCentral()
@@ -38,8 +38,8 @@ tasks {
 shadowJar {
     archiveClassifier.set('')
 
-    relocate 'com.zaxxer.hikari', 'dev.cryst.skillprogress.libs.hikari'
-    relocate 'com.mysql', 'dev.cryst.skillprogress.libs.mysql'
+    relocate 'com.zaxxer.hikari', 'io.github.crysscoder.skillprogress.libs.hikari'
+    relocate 'com.mysql', 'io.github.crysscoder.skillprogress.libs.mysql'
 }
 
 
