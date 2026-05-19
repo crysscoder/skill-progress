@@ -33,7 +33,7 @@ public class SkillCommand implements CommandExecutor, TabExecutor {
         if (!(sender instanceof Player player)) return false;
         final User playerdto = cache.getPlayer(player.getName());
         if (playerdto == null) {
-            System.out.println("Player is null");
+            player.sendMessage("Data is still loading. Try again in a moment.");
             return true;
         }
 

@@ -12,8 +12,8 @@ public class SkillCache {
         players.put(name, user);
     }
 
-    public void removePlayer(User user) {
-        players.remove(user);
+    public void removePlayer(String name) {
+        players.remove(name);
     }
 
     public void clear() {

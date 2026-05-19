@@ -1,9 +1,9 @@
 package io.github.crysscoder.skillprogress.service.facade;
 
-import lombok.AllArgsConstructor;
 import io.github.crysscoder.skillprogress.cache.SkillCache;
 import io.github.crysscoder.skillprogress.dto.User;
 import io.github.crysscoder.skillprogress.service.DatabaseService;
+import lombok.AllArgsConstructor;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -13,33 +13,34 @@ public class CacheFacade {
     private final DatabaseService service;
 
     public CompletableFuture<User> get(String name) {
-        System.out.println("Тут начинается метод");
-        return service.getPlayer(name).thenApply(p -> {
-            User user = p;
-            if (user == null) {
-                System.out.println("1");
-                user = new User(name, null, 0, 0);
-                cache.addPlayer(name, user);
-                return user;
-            }
-            System.out.println("2");
-            cache.addPlayer(name, p);
-            return user;
+        return service.getPlayer(name).thenApply(user -> {
+            User value = user == null ? new User(name, null, 0, 0) : user;
+            cache.addPlayer(name, value);
+            return value;
         });
     }
 
     public void add(User user) {
+        if (user == null) {
+            return;
+        }
+        if (user.className() == null) {
+            cache.removePlayer(user.name());
+            return;
+        }
         service.add(user);
-        cache.removePlayer(user);
+        cache.removePlayer(user.name());
     }
 
     public void remove(User user) {
+        if (user == null) {
+            return;
+        }
         service.remove(user);
-        cache.removePlayer(user);
+        cache.removePlayer(user.name());
     }
 
     public void update(String name, User newUser) {
         cache.addPlayer(name, newUser);
     }
-
 }

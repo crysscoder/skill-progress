@@ -66,7 +66,7 @@ public class Database {
                 CREATE TABLE IF NOT EXISTS `skills` (
                     `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
                 
-                    name VARCHAR(36)  NOT NULL,
+                    name VARCHAR(36) UNIQUE NOT NULL,
                     class VARCHAR(18) NOT NULL,
                     level INTEGER NOT NULL,
                     progress INTEGER)   

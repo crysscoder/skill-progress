@@ -1,9 +1,9 @@
 package io.github.crysscoder.skillprogress.repository.skill;
 
-import lombok.AllArgsConstructor;
 import io.github.crysscoder.skillprogress.dto.Skill;
 import io.github.crysscoder.skillprogress.dto.User;
 import io.github.crysscoder.skillprogress.repository.Database;
+import lombok.AllArgsConstructor;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,19 +21,21 @@ public class DatabaseSkillRepository implements SkillRepository {
     @Override
     public CompletableFuture<User> add(User entity) {
         return CompletableFuture.supplyAsync(() -> {
-            final String sql = "INSERT INTO skills (name, class, level, progress) VALUES (?,?, ?, ?)";
+            final String sql = """
+                    INSERT INTO skills (name, class, level, progress)
+                    VALUES (?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE class = VALUES(class), level = VALUES(level), progress = VALUES(progress)
+                    """;
 
             try (final Connection connection = dataSource.getDs().getConnection();
                  final PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
                 ps.setString(1, entity.name());
-                ps.setString(2, entity.className().name());
+                ps.setString(2, entity.className() == null ? Skill.WARRIOR.name() : entity.className().name());
                 ps.setInt(3, entity.level());
                 ps.setDouble(4, entity.progress());
-
                 ps.executeUpdate();
-
-                return null;
+                return entity;
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -47,6 +49,7 @@ public class DatabaseSkillRepository implements SkillRepository {
             try (final Connection connection = dataSource.getDs().getConnection();
                  final PreparedStatement ps = connection.prepareStatement(sql)) {
                 ps.setString(1, entity.name());
+                ps.executeUpdate();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -57,25 +60,22 @@ public class DatabaseSkillRepository implements SkillRepository {
     public CompletableFuture<Void> update(User entity) {
         return CompletableFuture.runAsync(() -> {
             final String sql = """
-                    UPDATE skills 
-                    SET className = ?, level = ?, progress = ?
+                    UPDATE skills
+                    SET class = ?, level = ?, progress = ?
                     WHERE name = ?
                     """;
 
             try (final Connection connection = dataSource.getDs().getConnection();
                  final PreparedStatement ps = connection.prepareStatement(sql)) {
 
-                ps.setString(1, entity.className().name());
+                ps.setString(1, entity.className() == null ? Skill.WARRIOR.name() : entity.className().name());
                 ps.setInt(2, entity.level());
                 ps.setDouble(3, entity.progress());
                 ps.setString(4, entity.name());
-
                 ps.executeUpdate();
-
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-
         }, executor);
     }
 
@@ -90,19 +90,25 @@ public class DatabaseSkillRepository implements SkillRepository {
                 try (final ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return new User(
-                                name,
-                                Skill.valueOf(rs.getString("class")),
-                                rs.getInt("level"),
-                                rs.getDouble("progress")
+                            name,
+                            parseSkill(rs.getString("class")),
+                            rs.getInt("level"),
+                            rs.getDouble("progress")
                         );
                     }
                 }
-
                 return null;
-
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         }, executor);
+    }
+
+    private Skill parseSkill(String value) {
+        try {
+            return value == null ? null : Skill.valueOf(value);
+        } catch (IllegalArgumentException exception) {
+            return null;
+        }
     }
 }
